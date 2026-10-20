@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where Does the Cup Go?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500&display=swap">
+<style>
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+/* Layout concept: one column. A headline, one slider, 100 cups that change colour as the slider moves. */
+:root {
+  --bg: #F1F6F0;
+  --fg: #14261E;
+  --muted: #475A50;
+  --line: #D2DFD4;
+  --accent: #2F7D4F;
+  --focus: #1F5FBF;
+  --c1: #2F7D4F;   /* comes back */
+  --c2: #A86A14;   /* kept as a souvenir */
+  --c3: #566170;   /* thrown away */
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1914; --fg: #E6F0E8; --muted: #A6B9AE; --line: #2A3F35;
+    --accent: #6FCF97; --focus: #8DB7FF;
+    --c1: #6FCF97; --c2: #E3A94A; --c3: #9DA9B8;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1914; --fg: #E6F0E8; --muted: #A6B9AE; --line: #2A3F35;
+  --accent: #6FCF97; --focus: #8DB7FF;
+  --c1: #6FCF97; --c2: #E3A94A; --c3: #9DA9B8;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.5;
+  padding-block: 40px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 560px; margin: 0 auto; }
+
+.eyebrow { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 500; margin: 0 0 12px; }
+h1 { font-family: var(--font-display); font-weight: 600; font-size: clamp(2.2rem, 8vw, 3.2rem); line-height: 1.04; margin: 0 0 14px; letter-spacing: -.01em; text-wrap: balance; }
+h1 em { font-style: italic; font-weight: 500; }
+.lede { margin: 0 0 30px; color: var(--muted); }
+
+.ctl label { display: flex; justify-content: space-between; align-items: baseline; font-weight: 700; font-size: 1.05rem; }
+.ctl output { font-variant-numeric: tabular-nums; color: var(--accent); font-size: 1.4rem; }
+.ctl input[type=range] { width: 100%; margin: 10px 0 0; accent-color: var(--accent); height: 32px; }
+input[type=range]:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+.answer { margin: 22px 0 18px; }
+.answer .sentence { font-family: var(--font-display); font-size: clamp(1.5rem, 5.4vw, 2rem); line-height: 1.2; margin: 0; font-weight: 600; text-wrap: balance; }
+.answer .sentence b { color: var(--accent); font-variant-numeric: tabular-nums; }
+
+.grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: clamp(4px, 1.4vw, 8px); margin: 0 0 22px; }
+.cell { aspect-ratio: 1; display: grid; place-items: center; }
+.dot { width: 78%; height: 78%; transition: background-color .25s, border-color .25s; }
+.k1 { background: var(--c1); border-radius: 50%; }
+.k2 { background: var(--c2); width: 60%; height: 60%; transform: rotate(45deg); }
+.k3 { background: transparent; border: 3px solid var(--c3); border-radius: 50%; }
+
+.legend { list-style: none; margin: 0 0 28px; padding: 0; }
+.legend li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.legend li:last-child { border-bottom: 1px solid var(--line); }
+.sw { width: 20px; height: 20px; display: grid; place-items: center; }
+.sw .dot { width: 100%; height: 100%; }
+.sw .k2 { width: 72%; height: 72%; }
+.sw .k3 { border-width: 2.5px; }
+.legend .num { font-variant-numeric: tabular-nums; font-weight: 700; text-align: right; }
+.legend .num span { font-weight: 400; color: var(--muted); margin-left: 8px; }
+
+.foot { color: var(--muted); font-size: .9rem; margin: 0; }
+.foot b { color: var(--fg); }
+
+@media (prefers-reduced-motion: reduce) { .dot { transition: none; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <p class="eyebrow">Green Vantage · SDG 12</p>
+  <h1>Where does the <em>cup</em> go?</h1>
+  <p class="lede">The US Open sold 738,459 Honey Deuces in 2025, each in a new souvenir cup. Add a deposit and see what could change.</p>
+
+  <div class="ctl">
+    <label for="deposit">Cup deposit <output id="o-deposit" for="deposit">$0</output></label>
+    <input id="deposit" type="range" min="0" max="5" step="0.5" value="0">
+  </div>
+
+  <div class="answer" aria-live="polite">
+    <p class="sentence" id="sentence"></p>
+  </div>
+
+  <div class="grid" id="grid" role="img"></div>
+
+  <ul class="legend" id="legend"></ul>
+
+  <p class="foot"><b>Only the 738,459 and the $23 price are real.</b> The rest is a guess: 4 in 10 buyers keep the cup, and a deposit brings back more of the others. The US Open has not published real numbers. From “Deuce or Advantage?” by Krishang Worah.</p>
+</div>
+
+<script>
+const N = 738459;
+const FMT = new Intl.NumberFormat('en-IN');
+
+// MODEL START
+function allocate(weights, total) {
+  const sum = weights.reduce((a, b) => a + b, 0);
+  const raw = weights.map(w => (w / sum) * total);
+  const out = raw.map(Math.floor);
+  const left = total - out.reduce((a, b) => a + b, 0);
+  const order = raw.map((v, i) => [v - Math.floor(v), i]).sort((a, b) => b[0] - a[0]);
+  for (let k = 0; k < left; k++) out[order[k][1]]++;
+  return out;
+}
+function model(deposit) {
+  const KEEP = 0.40, BASE = 0.03, MAX = 0.90, STRENGTH = 0.6;
+  const R = BASE + (MAX - BASE) * (1 - Math.exp(-STRENGTH * deposit));
+  const shares = [(1 - KEEP) * R, KEEP, (1 - KEEP) * (1 - R)];
+  return { R, shares, counts: allocate(shares, N), cells: allocate(shares, 100) };
+}
+// MODEL END
+
+const FATES = [
+  { cls: 'k1', name: 'Comes back and is reused' },
+  { cls: 'k2', name: 'Kept as a souvenir' },
+  { cls: 'k3', name: 'Thrown away' }
+];
+const el = id => document.getElementById(id);
+
+function render() {
+  const d = Number(el('deposit').value);
+  const m = model(d);
+  el('o-deposit').textContent = '$' + (Number.isInteger(d) ? d : d.toFixed(2));
+
+  const back = m.counts[0];
+  el('sentence').innerHTML = d === 0
+    ? 'With no deposit, only <b>' + FMT.format(back) + '</b> of the cups come back.'
+    : 'With a deposit, <b>' + FMT.format(back) + '</b> of the cups come back.';
+
+  const grid = el('grid');
+  grid.textContent = '';
+  m.cells.forEach((n, fate) => {
+    for (let i = 0; i < n; i++) {
+      const c = document.createElement('span');
+      c.className = 'cell';
+      c.innerHTML = '<span class="dot ' + FATES[fate].cls + '"></span>';
+      grid.appendChild(c);
+    }
+  });
+  grid.setAttribute('aria-label', '100 squares, each 1% of the cups: ' +
+    m.cells.map((n, i) => n + ' ' + FATES[i].name.toLowerCase()).join(', '));
+
+  el('legend').innerHTML = FATES.map((f, i) =>
+    '<li><span class="sw" aria-hidden="true"><span class="dot ' + f.cls + '"></span></span>' +
+    '<span>' + f.name + '</span>' +
+    '<span class="num">' + FMT.format(m.counts[i]) + '<span>' + Math.round(m.shares[i] * 100) + '%</span></span></li>'
+  ).join('');
+}
+
+el('deposit').addEventListener('input', render);
+render();
+</script>
+
+</body>
+</html>
